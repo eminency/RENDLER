@@ -71,9 +71,49 @@ public class RendlerScheduler implements Scheduler {
   public void disconnected(SchedulerDriver driver) {
   }
 
+  boolean rejected = false;
+
   @Override
   public void resourceOffers(SchedulerDriver driver, List<Offer> offers) {
+    System.out.println(String.format("------ offer start(%d) ------", Thread.currentThread()
+        .getId()));
+
+    if (!rejected) {
+      for (Offer offer : offers) {
+        driver.declineOffer(offer.getId());
+      }
+
+      rejected = true;
+      System.out.println("REJECTED!");
+      return;
+    }
+    else {
+      rejected = false;
+      System.out.println("ACCEPTED!");
+    }
+
     for (Offer offer : offers) {
+      System.out.println("node: " + offer.getHostname());
+      for (Resource r : offer.getResourcesList()) {
+        Value.Type type = r.getType();
+
+        System.out.print(String.format("Offer name: %s, role: %s, type: %s, value: ", r.getName(),
+            r.getRole(), r.getType().toString()));
+
+        switch (type) {
+          case SCALAR :
+            System.out.println(r.getScalar().getValue());
+            break;
+
+          case RANGES :
+            for (Value.Range rng : r.getRanges().getRangeList()) {
+              System.out.println(rng.getBegin() + "/" + rng.getEnd());
+            }
+            break;
+        }
+      }
+      System.out.println();
+
       List<TaskInfo> tasks = new ArrayList<TaskInfo>();
       if (launchedTasks < totalTasks && !crawlQueue.isEmpty()) {
         TaskID taskId = TaskID.newBuilder().setValue(Integer.toString(launchedTasks++)).build();
@@ -81,7 +121,8 @@ public class RendlerScheduler implements Scheduler {
         // queue
         String urlData = crawlQueue.get(0);
 
-        System.out.println("Launching task " + taskId.getValue() + " with input: " + urlData);
+        System.out.println(Thread.currentThread().getId() + "Launching task " + taskId.getValue()
+            + " with input: " + urlData);
         // Task for crawler
         TaskInfo task = TaskInfo
             .newBuilder()
@@ -99,7 +140,8 @@ public class RendlerScheduler implements Scheduler {
 
         taskId = TaskID.newBuilder().setValue(Integer.toString(launchedTasks++)).build();
 
-        System.out.println("Launching task " + taskId.getValue() + " with input: " + urlData);
+        System.out.println(Thread.currentThread().getId() + "Launching task " + taskId.getValue()
+            + " with input: " + urlData);
 
         // Task for render
         TaskInfo taskRender = TaskInfo
@@ -133,12 +175,15 @@ public class RendlerScheduler implements Scheduler {
 
   @Override
   public void statusUpdate(SchedulerDriver driver, TaskStatus status) {
+    TaskState state = status.getState();
 
-    if (status.getState() == TaskState.TASK_FINISHED || status.getState() == TaskState.TASK_LOST) {
-      System.out.println("Status update: task " + status.getTaskId().getValue()
-          + " has completed with state " + status.getState());
+    if (state == TaskState.TASK_FINISHED || state == TaskState.TASK_LOST
+        || state == TaskState.TASK_FAILED || state == TaskState.TASK_ERROR
+        || state == TaskState.TASK_KILLED) {
+      System.out.println(Thread.currentThread().getId() + "Status update: task "
+          + status.getTaskId().getValue() + " has completed with state " + state);
       finishedTasks++;
-      System.out.println("Finished tasks: " + finishedTasks);
+      System.out.println(Thread.currentThread().getId() + "Finished tasks: " + finishedTasks);
       if (finishedTasks == totalTasks) {
         // Once the total allowed tasks are finished, write the graph
         // file
@@ -148,8 +193,8 @@ public class RendlerScheduler implements Scheduler {
         driver.stop();
       }
     } else {
-      System.out.println("Status update: task " + status.getTaskId().getValue() + " is in state "
-          + status.getState());
+      System.out.println(Thread.currentThread().getId() + "Status update: task "
+          + status.getTaskId().getValue() + " is in state " + state);
     }
   }
 
