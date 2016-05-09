@@ -71,29 +71,15 @@ public class RendlerScheduler implements Scheduler {
   public void disconnected(SchedulerDriver driver) {
   }
 
-  boolean rejected = false;
-
   @Override
   public void resourceOffers(SchedulerDriver driver, List<Offer> offers) {
     System.out.println(String.format("------ offer start(%d) ------", Thread.currentThread()
         .getId()));
 
-    if (!rejected) {
-      for (Offer offer : offers) {
-        driver.declineOffer(offer.getId());
-      }
-
-      rejected = true;
-      System.out.println("REJECTED!");
-      return;
-    }
-    else {
-      rejected = false;
-      System.out.println("ACCEPTED!");
-    }
-
     for (Offer offer : offers) {
       System.out.println("node: " + offer.getHostname());
+      System.out.println("slave ID: " + offer.getSlaveId());
+
       for (Resource r : offer.getResourcesList()) {
         Value.Type type = r.getType();
 
