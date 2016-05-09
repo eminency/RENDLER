@@ -117,10 +117,10 @@ public class RendlerScheduler implements Scheduler {
             .setSlaveId(offer.getSlaveId())
             .addResources(
                 Resource.newBuilder().setName("cpus").setType(Value.Type.SCALAR)
-                    .setScalar(Value.Scalar.newBuilder().setValue(1)).build())
+                    .setScalar(Value.Scalar.newBuilder().setValue(1).build()).build())
             .addResources(
                 Resource.newBuilder().setName("mem").setType(Value.Type.SCALAR)
-                    .setScalar(Value.Scalar.newBuilder().setValue(128)).build())
+                    .setScalar(Value.Scalar.newBuilder().setValue(128).build()).build())
             .setData(ByteString.copyFromUtf8(crawlQueue.get(0)))
             .setExecutor(ExecutorInfo.newBuilder(executorCrawler)).build();
 
@@ -137,10 +137,10 @@ public class RendlerScheduler implements Scheduler {
             .setSlaveId(offer.getSlaveId())
             .addResources(
                 Resource.newBuilder().setName("cpus").setType(Value.Type.SCALAR)
-                    .setScalar(Value.Scalar.newBuilder().setValue(1)).build())
+                    .setScalar(Value.Scalar.newBuilder().setValue(1).build()).build())
             .addResources(
                 Resource.newBuilder().setName("mem").setType(Value.Type.SCALAR)
-                    .setScalar(Value.Scalar.newBuilder().setValue(128)).build())
+                    .setScalar(Value.Scalar.newBuilder().setValue(128).build()).build())
             .setData(ByteString.copyFromUtf8(urlData))
             .setExecutor(ExecutorInfo.newBuilder(executorRender)).build();
 
