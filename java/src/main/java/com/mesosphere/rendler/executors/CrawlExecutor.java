@@ -1,11 +1,19 @@
 package com.mesosphere.rendler.executors;
 
-import org.apache.mesos.*;
+import org.apache.mesos.Executor;
+import org.apache.mesos.ExecutorDriver;
+import org.apache.mesos.MesosExecutorDriver;
 import org.apache.mesos.Protos.*;
-import java.util.*;
-import java.util.regex.*;
-import java.io.*;
-import java.net.*;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CrawlExecutor implements Executor {
 

@@ -1,34 +1,13 @@
 package com.mesosphere.rendler.scheduler;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.mesos.Protos.ExecutorID;
-import org.apache.mesos.Protos.ExecutorInfo;
-import org.apache.mesos.Protos.FrameworkID;
-import org.apache.mesos.Protos.MasterInfo;
-import org.apache.mesos.Protos.Offer;
-import org.apache.mesos.Protos.OfferID;
-import org.apache.mesos.Protos.Resource;
-import org.apache.mesos.Protos.SlaveID;
-import org.apache.mesos.Protos.TaskID;
-import org.apache.mesos.Protos.TaskInfo;
-import org.apache.mesos.Protos.TaskState;
-import org.apache.mesos.Protos.TaskStatus;
-import org.apache.mesos.Protos.Value;
+import com.google.protobuf.ByteString;
+import com.mesosphere.rendler.util.GraphWriter;
+import org.apache.mesos.Protos.*;
 import org.apache.mesos.Scheduler;
 import org.apache.mesos.SchedulerDriver;
 
-import com.google.protobuf.ByteString;
-import com.mesosphere.rendler.util.GraphWriter;
+import java.io.File;
+import java.util.*;
 
 public class RendlerScheduler implements Scheduler {
 
@@ -96,6 +75,16 @@ public class RendlerScheduler implements Scheduler {
               System.out.println(rng.getBegin() + "/" + rng.getEnd());
             }
             break;
+        }
+
+        if (r.hasDisk()) {
+          Resource.DiskInfo diskInfo = r.getDisk();
+          System.out.println(String.format(
+              "  diskinfo : container_path:%s, host_path:%s, type:%s, path:%s, mount:%s", diskInfo
+                  .getVolume().getContainerPath(), diskInfo.getVolume().getHostPath(), diskInfo
+                  .getSource().getType(), diskInfo.getSource().hasPath() ? diskInfo.getSource()
+                  .getPath().getRoot() : "", diskInfo.getSource().hasMount() ? diskInfo.getSource()
+                  .getMount().getRoot() : ""));
         }
       }
       System.out.println();
